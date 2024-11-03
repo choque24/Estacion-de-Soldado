@@ -1,0 +1,295 @@
+﻿Build1=Default,gus.b4a_DHT11
+File1=1.png
+File2=Conexion.bal
+File3=Datos.bal
+File4=ESP32.png
+File5=image-_1_.png
+File6=main.bal
+File7=Presentacion.bal
+FileGroup1=Default Group
+FileGroup2=Default Group
+FileGroup3=Default Group
+FileGroup4=Default Group
+FileGroup5=Default Group
+FileGroup6=Default Group
+FileGroup7=Default Group
+Group=Default Group
+Library1=b4xtable
+Library2=ble2
+Library3=byteconverter
+Library4=core
+Library5=javaobject
+Library6=runtimepermissions
+Library7=xcustomlistview
+Library8=xui
+ManifestCode='This code will be applied to the manifest file during compilation.~\n~'You do not need to modify it in most cases.~\n~'See this link for for more information: https://www.b4x.com/forum/showthread.php?p=78136~\n~AddManifestText(~\n~<uses-sdk android:minSdkVersion="21" android:targetSdkVersion="33"/>~\n~<supports-screens android:largeScreens="true" ~\n~    android:normalScreens="true" ~\n~    android:smallScreens="true" ~\n~    android:anyDensity="true"/>)~\n~SetApplicationAttribute(android:icon, "@drawable/icon")~\n~SetApplicationAttribute(android:label, "$LABEL$")~\n~CreateResourceFromFile(Macro, Themes.LightTheme)~\n~'End of default text.~\n~AddPermission(android.permission.BLUETOOTH)~\n~AddPermission(android.permission.BLUETOOTH_ADMIN)~\n~AddPermission(android.permission.ACCESS_COARSE_LOCATION)~\n~AddPermission(android.permission.BLUETOOTH_SCAN)~\n~AddPermission(android.permission.BLUETOOTH_CONNECT)~\n~AddPermission(android.permission.ACCESS_FINE_LOCATION)
+Module1=Starter
+NumberOfFiles=7
+NumberOfLibraries=8
+NumberOfModules=1
+Version=12.8
+@EndOfDesignText@
+#Region  Project Attributes 
+	#ApplicationLabel: Calisto - Soldadura
+	#VersionCode: 1
+	#VersionName: 
+	#SupportedOrientations: portrait
+	#CanInstallToExternalStorage: False
+#End Region
+
+#Region  Activity Attributes 
+	#FullScreen: true
+	#IncludeTitle: false
+	#BridgeLogger:true
+#End Region
+
+Sub Process_Globals
+	'These global variables will be declared once when the application starts.
+	'These variables can be accessed from all modules.
+	Private xui As XUI
+End Sub
+
+Sub Globals
+'These global variables will be redeclared each time the activity is created.
+	Dim UART_UUid ="6e400001-b5a3-f393-e0a9-e50e24dcca9e" As String
+	Dim UART_TX = "6e400003-b5a3-f393-e0a9-e50e24dcca9e" As String
+	Dim UART_RX = "6e400002-b5a3-f393-e0a9-e50e24dcca9e" As String
+' Miembros MAIN
+	Private TabHost1 As TabHost
+' Miembros PRESENTACION
+	Private LblDescripcion As Label
+	Private LblTitulo As Label
+	Private Pn_1_Pres As Panel
+	Private ImgESP32 As ImageView
+' Miembros CONEXIÓN
+'	Private data(1) As Byte
+'	data(0)=4
+	Private TogBtnConexion As ToggleButton
+	Private BtnDesconexion As Button
+	Private Label1 As Label
+	Private Pnl_1_Conexion As Panel
+	Private Pnl_2_Conexion As Panel
+	Private CustomListView1 As CustomListView
+' Miembros DATOS
+	Private hola As Int
+	Private Pnl_1_Datos As Panel
+	Private LblTemperatura As Label
+	Private Lbtemperatura_deseada As Label
+	Private temperatura_deseada As Label
+	Private Temperatura_real As Label
+	Private Pnl_2_Datos As Panel
+	Private Button1 As Button
+	Private Button2 As Button
+	Private Button3 As Button
+	Private Button4 As Button
+	Private SeekBar1 As SeekBar
+	Private ToggleButton1 As ToggleButton
+' Miembros
+	Dim Control_BLE As BleManager2
+	Dim PERMISO As RuntimePermissions
+	Private BC As ByteConverter
+	Private BC1 As ByteConverter
+	Dim IDs(15) As String
+	Dim x = 0 As Int
+	Dim xx As Boolean
+	Dim currentStateText As String
+End Sub
+
+Sub Activity_Create(FirstTime As Boolean)
+' Caracteristicas MAIN	
+	Activity.LoadLayout("main")
+	Activity.Title="Estación de Soldado"	 
+	TabHost1.AddTab("Presentacion","Presentacion.bal")
+	TabHost1.AddTab("Conexion","Conexion.bal")
+	TabHost1.AddTab("Datos","Datos.bal")
+	TabHost1.SetLayout(0,0,100%x,100%y)
+'Caracteristicas PRESENTACION
+'	Pn_1_Pres.SetLayout(0,0,100%x,100%y)
+	LblTitulo.SetLayout(2%x,5%y,90%x,10%y)
+	LblDescripcion.SetLayout(8%x,10%y,80%x,40%y)
+'	ImgESP32.SetLayout(5%x,50%y,60%x,30%y)
+'	ImgESP32.Bitmap=LoadBitmap(File.DirAssets,"ESP32.png")
+' Caracteristicas CONEXION
+'	Pnl_1_Conexion.SetLayout(0%x,2%y,95%x,20%y)
+	TogBtnConexion.SetLayout(5%x,10%y,40%x,10%y)
+	TogBtnConexion.Enabled=True
+	BtnDesconexion.SetLayout(50%x,10%y,40%x,10%y)
+	BtnDesconexion.Enabled=False
+'	Pnl_2_Conexion.SetLayout(0%x,24%y,95%x,65%y)
+	Label1.SetLayout(5%x,2%y,90%x,10%y)
+	CustomListView1.DefaultTextBackgroundColor=Colors.Black
+	CustomListView1.PressedColor=Colors.Cyan
+	CustomListView1.DefaultTextColor=Colors.White
+	' Caracteristicas DATOS
+	Pnl_1_Datos.SetLayout(5%x,15%x,80%x,7%y)
+	Pnl_2_Datos.SetLayout(5%x,35%x,80%x,7%y)
+	LblTemperatura.SetLayout(5%x,15%x,80%x,7%y)
+	Lbtemperatura_deseada.SetLayout(5%x,35%x,80%x,7%y)
+	Temperatura_real.SetLayout(5%x,5%x,80%x,7%y)
+	temperatura_deseada.SetLayout(5%x,25%x,80%x,7%y)
+	Button1.SetLayout(10%x,80%x,15%x,10%y)
+	Button2.SetLayout(30%x,80%x,15%x,10%y)
+	Button3.SetLayout(50%x,80%x,15%x,10%y)
+	Button4.SetLayout(70%x,80%x,15%x,10%y)
+	ToggleButton1.SetLayout(25%x,120%x,50%x,10%y)
+	Control_BLE.Initialize("Control_BLE")
+End Sub
+
+Sub Activity_Resume
+
+End Sub
+
+Sub Activity_Pause (UserClosed As Boolean)
+
+End Sub
+
+Private Sub BtnDesconexion_Click 
+	Control_BLE.Disconnect
+	BtnDesconexion.Enabled=False
+	TogBtnConexion.Enabled=True
+	ToastMessageShow("Desconectado", True)
+End Sub
+
+Sub Control_BLE_DeviceFound (Name As String, Id As String, AdvertisingData As Map, RSSI As Double)
+	Log("Encontrado: " & Name & ", " & Id & ", RSSI = " & RSSI & ", " & AdvertisingData)
+	'ListView1.AddSingleLine( Name & ", " & Id )
+	CustomListView1.AddTextItem(Name & " " & Id,x)
+	IDs(x)=Id
+	x=x+1
+	Log(IDs(x))
+End Sub
+
+Private Sub ListView1_ItemClick (Position As Int, Value As Object)
+	Log("Click en Lista")
+	Control_BLE.StopScan
+	Control_BLE.Connect2(IDs(Position),False)
+	Log("Conectando...")
+End Sub
+
+Sub Control_BLE_Connected (services As List)
+	ToastMessageShow("Conectado", True)
+	Log("Conectado")
+	Control_BLE.SetNotify(UART_UUid,UART_TX,True)
+	'BtnConexion.Enabled=False
+	TogBtnConexion.Enabled=False
+	BtnDesconexion.Enabled=True
+	Sleep(2000)
+	TabHost1.CurrentTab=2
+End Sub
+
+Sub Control_BLE_StateChanged (State As Int)
+	Select State
+		Case Control_BLE.STATE_POWERED_OFF
+			currentStateText = "POWERED OFF"
+		Case Control_BLE.STATE_POWERED_ON
+			currentStateText = "POWERED ON"
+		Case Control_BLE.STATE_UNSUPPORTED
+			currentStateText = "UNSUPPORTED"
+	End Select
+	ToastMessageShow(currentStateText,True)
+End Sub
+
+Private Sub TogBtnConexion_CheckedChange(Checked As Boolean)
+	If (Checked) Then
+		PERMISO.CheckAndRequest(PERMISO.PERMISSION_ACCESS_COARSE_LOCATION)
+		Wait For Activity_PermissionResult (Permission As String, Result As Boolean)
+		Log(Result)
+		If Result = False Then
+			ToastMessageShow("Sin Permiso para BUSCAR", True)
+			Sleep(2000)
+			Return
+		End If
+		'Log("boton Scan")
+		PERMISO.CheckAndRequest(PERMISO.PERMISSION_ACCESS_FINE_LOCATION)
+		Wait For Activity_PermissionResult (Permission As String, Result As Boolean)
+		Log(Result)
+		If Result = False Then
+			ToastMessageShow("Sin Permiso FINE LOCATION", True)
+			Sleep(2000)
+			Return
+		End If
+		Control_BLE.Scan2(Null,False)
+		Log("boton Scan2")
+	Else
+		Control_BLE.StopScan
+	End If
+	
+End Sub
+
+Private Sub CustomListView1_ItemClick (Index As Int, Value As Object)
+	Log("Click en Lista")
+	Control_BLE.StopScan
+	Control_BLE.Connect2(IDs(Index),False)
+	Log("Conectando..")
+	ToastMessageShow("Conectando... ", True)
+End Sub
+
+Sub Control_BLE_DataAvailable (ServiceId As String, Characteristics As Map)
+	
+	Log("data available")
+'	Log(ServiceId & " ,,, " & Characteristics)
+'	LblTemperatura.Text=Characteri	stics.get(UART_TX)
+'	Log(Characteristics.get(UART_TX))
+'	Dim dataTemp() As Byte
+'	dataTemp()=Characteristics.get(UART_TX)
+'	BC.StringFromBytes (dataTemp,"UTF8")
+'	Log(BytesToString(dataTemp,0, dataTemp.Length, "UTF8"))
+'	
+	Dim BC As ByteConverter
+	For Each key As String In Characteristics.Keys
+		Dim b() As Byte = Characteristics.Get(key)
+		Log (" ")
+		Log("Key: " & key &", value: " & BC.HexFromBytes(b))
+		Log("string: " & BytesToString(b, 0, b.Length, "utf8") )'useful if the data is actually a string
+		If xx Then
+			xx=False
+			LblTemperatura.Text=BytesToString(b, 0, b.Length, "utf8")
+		Else
+			xx=True
+			Lbtemperatura_deseada.Text=BytesToString( b, 0, b.Length, "utf8")
+		End If
+	Next
+End Sub
+
+Private Sub Button4_Click
+	Dim n As String = "apagar "
+	Dim send () As Byte = BC1.StringToBytes(n, "UTF-8")
+'	Log(send(0))
+	Control_BLE.WriteData(UART_UUid, UART_RX, send)
+End Sub
+
+Private Sub Button3_Click
+	Dim n As String = "prender "
+	Dim send () As Byte = BC1.StringToBytes(n, "UTF-8")
+'	Log(send(0))
+	Control_BLE.WriteData(UART_UUid, UART_RX, send)
+	
+End Sub
+
+Private Sub Button2_Click
+	Dim n As String = "mitad "
+	Dim send () As Byte = BC1.StringToBytes(n, "UTF-8")
+'	Log(send(0))
+	Control_BLE.WriteData(UART_UUid, UART_RX, send)
+End Sub
+
+Private Sub Button1_Click
+	Dim n As String = "150"
+	Dim send () As Byte = BC1.StringToBytes(n, "UTF-8")
+'	Log(send(0))
+	Control_BLE.WriteData(UART_UUid, UART_RX, send)
+End Sub
+
+Private Sub ToggleButton1_CheckedChange(Checked As Boolean)
+	
+End Sub
+
+
+Private Sub SeekBar1_ValueChanged (Value As Int, UserChanged As Boolean)
+	Dim hola As Char
+	hola = SeekBar1.Value
+	'Dim holas As Int = SeekBar1.Value'Array As Int(1, 2, 3)
+	Dim send() As Byte = BC1.StringToBytes(hola, "UTF-8")
+'	Dim send() As Byte = BC1.
+	Control_BLE.WriteData(UART_UUid, UART_RX, send) 
+End Sub
